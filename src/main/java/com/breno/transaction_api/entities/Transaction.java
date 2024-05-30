@@ -30,4 +30,13 @@ public class Transaction {
     private String cardNumber;
     private String cvv;
     private String owner;
+
+    public boolean validateCardDigits(String cardNumber, String cvv) {
+        if (cardNumber == null || cvv == null) {
+            return false;
+        }
+
+        String regex = "\\d+";
+        return cardNumber.matches(regex) && cvv.matches(regex);
+    }
 }

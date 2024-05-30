@@ -21,6 +21,7 @@ import com.breno.transaction_api.services.TransactionService;
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {
+
     private final TransactionService transactionService;
 
     public TransactionController(TransactionService transactionService) {
@@ -31,23 +32,28 @@ public class TransactionController {
     public ResponseEntity<Transaction> create(
         @RequestBody TransactionDTO transactionDTO
     ) {
-        Transaction createdTransaction = transactionService
-            .createTransaction(transactionDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(createdTransaction);
+        try {
+            Transaction createdTransaction =
+                transactionService.createTransaction(transactionDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body(createdTransaction);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(null);
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Transaction>> findAll() {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(transactionService.findAll());
+            .body(transactionService.findAllTransactions());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Transaction> findById(@PathVariable("id") UUID id) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
-                .body(transactionService.findById(id));
+                .body(transactionService.findTransactionById(id));
         } catch (TransactionNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -60,9 +66,12 @@ public class TransactionController {
     ) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
-                .body(transactionService.update(id, transactionDTO));
+                .body(transactionService.updateTransaction(id, transactionDTO));
         } catch (TransactionNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(null);
         }
     }
 }

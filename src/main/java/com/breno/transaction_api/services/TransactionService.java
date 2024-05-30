@@ -23,27 +23,49 @@ public class TransactionService {
         Transaction transaction = new Transaction();
         // Map the DTO to the entity.
         BeanUtils.copyProperties(transactionDTO, transaction);
+
+        // Validate card number and CVV
+        if (!transaction.validateCardDigits(
+            transaction.getCardNumber(), transaction.getCvv()
+        )) {
+            throw new IllegalArgumentException(
+                "Card number and CVV must contain only digits."
+            );
+        }
+
         return transactionRepository.save(transaction);
     }
 
     @Transactional(readOnly = true)
-    public List<Transaction> findAll() {
+    public List<Transaction> findAllTransactions() {
         return transactionRepository.findAll();
     }
 
     @Transactional(readOnly = true)
-    public Transaction findById(UUID id) {
+    public Transaction findTransactionById(UUID id) {
         return transactionRepository.findById(id)
             .orElseThrow(() -> new TransactionNotFoundException(
-                "Transaction not found with ID: " + id)
-            );
+                "Transaction not found with ID: " + id
+            ));
     }
 
     @Transactional
-    public Transaction update(UUID id, TransactionDTO transactionDTO) {
+    public Transaction updateTransaction(
+        UUID id, TransactionDTO transactionDTO
+    ) {
         // This will throw TransactionNotFoundException if not found
-        Transaction existingTransaction = findById(id);
-        BeanUtils.copyProperties(transactionDTO, existingTransaction);
-        return transactionRepository.save(existingTransaction);
+        Transaction transaction = findTransactionById(id);
+        BeanUtils.copyProperties(transactionDTO, transaction);
+
+        // Validate card number and CVV
+        if (!transaction.validateCardDigits(
+            transaction.getCardNumber(), transaction.getCvv()
+        )) {
+            throw new IllegalArgumentException(
+                "Card number and CVV must contain only digits."
+            );
+        }
+
+        return transactionRepository.save(transaction);
     }
 }
