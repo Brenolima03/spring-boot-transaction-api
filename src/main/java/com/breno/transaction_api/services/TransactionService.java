@@ -68,4 +68,14 @@ public class TransactionService {
 
         return transactionRepository.save(transaction);
     }
+
+    @Transactional
+    public void deleteTransaction(UUID id) {
+        Transaction transaction = transactionRepository.findById(id)
+            .orElseThrow(() -> new TransactionNotFoundException(
+                "Transaction not found with ID: " + id
+            ));
+
+        transactionRepository.delete(transaction);
+    }
 }
