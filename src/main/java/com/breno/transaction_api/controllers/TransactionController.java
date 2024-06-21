@@ -28,7 +28,7 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping
+    @PostMapping("/post")
     public ResponseEntity<Transaction> create(
         @RequestBody TransactionDTO transactionDTO
     ) {
@@ -59,7 +59,7 @@ public class TransactionController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("update/{id}")
     public ResponseEntity<Transaction> update(
         @PathVariable("id") UUID id,
         @RequestBody TransactionDTO transactionDTO
