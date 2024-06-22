@@ -21,16 +21,15 @@ public class TransactionService {
     @Transactional
     public Transaction createTransaction(TransactionDTO transactionDTO) {
         Transaction transaction = new Transaction();
-        // Map the DTO to the entity.
         BeanUtils.copyProperties(transactionDTO, transaction);
 
-        // Validate card number and CVV
-        if (!transaction.validateCardDigits(
-            transaction.getCardNumber(), transaction.getCvv()
-        )) {
-            throw new IllegalArgumentException(
-                "Card number and CVV must contain only digits."
-            );
+        String formattedCardNumber = formatCardNumber(
+            transaction.getCardNumber()
+        );
+        transaction.setCardNumber(formattedCardNumber);
+
+        if (!Transaction.isCardNumberValid(transaction.getCardNumber())) {
+            throw new IllegalArgumentException("Invalid card number!");
         }
 
         return transactionRepository.save(transaction);
@@ -45,25 +44,24 @@ public class TransactionService {
     public Transaction findTransactionById(UUID id) {
         return transactionRepository.findById(id)
             .orElseThrow(() -> new TransactionNotFoundException(
-                "Transaction not found with ID: " + id
-            ));
+                "Transaction not found with ID: " + id)
+            );
     }
 
     @Transactional
     public Transaction updateTransaction(
         UUID id, TransactionDTO transactionDTO
     ) {
-        // This will throw TransactionNotFoundException if not found
         Transaction transaction = findTransactionById(id);
         BeanUtils.copyProperties(transactionDTO, transaction);
 
-        // Validate card number and CVV
-        if (!transaction.validateCardDigits(
-            transaction.getCardNumber(), transaction.getCvv()
-        )) {
-            throw new IllegalArgumentException(
-                "Card number and CVV must contain only digits."
-            );
+        String formattedCardNumber = formatCardNumber(
+            transaction.getCardNumber()
+        );
+        transaction.setCardNumber(formattedCardNumber);
+
+        if (!Transaction.isCardNumberValid(transaction.getCardNumber())) {
+            throw new IllegalArgumentException("Invalid card number!");
         }
 
         return transactionRepository.save(transaction);
@@ -73,9 +71,13 @@ public class TransactionService {
     public void deleteTransaction(UUID id) {
         Transaction transaction = transactionRepository.findById(id)
             .orElseThrow(() -> new TransactionNotFoundException(
-                "Transaction not found with ID: " + id
-            ));
+                "Transaction not found with ID: " + id)
+            );
 
         transactionRepository.delete(transaction);
+    }
+
+    private String formatCardNumber(String cardNumber) {
+        return cardNumber.replace(".", "").replace(" ", "");
     }
 }
