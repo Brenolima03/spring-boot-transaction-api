@@ -51,34 +51,41 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> findById(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> findById(@PathVariable("id") UUID id) {
         try {
-            return ResponseEntity.status(HttpStatus.OK)
-                .body(transactionService.findTransactionById(id));
+            return ResponseEntity.status(HttpStatus.OK).body(
+                transactionService.findTransactionById(id)
+            );
         } catch (TransactionNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Transaction not found with ID: " + id);
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Transaction> update(
-        @PathVariable("id") UUID id,
-        @RequestBody TransactionDTO transactionDTO
+    public ResponseEntity<?> update(
+        @PathVariable("id") UUID id, @RequestBody TransactionDTO transactionDTO
     ) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.updateTransaction(id, transactionDTO));
         } catch (TransactionNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Transaction not found with ID: " + id);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(null);
+                .body(e.getMessage());
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") UUID id) {
-        transactionService.deleteTransaction(id);
-        return ResponseEntity.ok("Transaction deleted successfully!");
+    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
+        try {
+            transactionService.deleteTransaction(id);
+            return ResponseEntity.ok("Transaction deleted successfully!");
+        } catch (TransactionNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Transaction not found with ID: " + id);
+        }
     }
 }
