@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TransactionApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TransactionApiApplication.class, args);
+		System.out.println("http://localhost:8080/transactions-web/form");
 	}
 }

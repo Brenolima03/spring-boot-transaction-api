@@ -44,7 +44,7 @@ public class TransactionController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/get")
     public ResponseEntity<List<Transaction>> findAll() {
         return ResponseEntity.status(HttpStatus.OK)
             .body(transactionService.findAllTransactions());
